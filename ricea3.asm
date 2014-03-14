@@ -1,4 +1,4 @@
-title   RiceA3                         (ricea3.asm)
+title   RiceAaron3                     (ricea3.asm)
 
 comment ;
 Assignment 3
@@ -16,7 +16,6 @@ prompt   BYTE      "Input a hex value: ",0
 ttlMsg   BYTE      "Total set bits: ",0
 zeroMsg  BYTE      "No bits set",0ah,0
 bitmask  SDWORD    1h
-bitTtl   SDWORD    ?
 LSB      SDWORD    20h
 MSB      SDWORD    20h
 
@@ -31,27 +30,27 @@ main PROC
 
          cmp       eax,0
          jz        zroBit
-lsbCt:   test      eax,bitmask         ;Tests status of right-most bit
-         .if       !zero?              ;Note if right-most bit is set
+lsbCt:   test      eax,bitmask         ;Test status of right-most bit
+         .if       !zero?              ;If right-most bit is set...
           inc      edx                 ;Increase total bits ctr
-          sub      LSB,ecx             ;Stores least-sig bit in LSB
-          mov      ebx,ecx             ;Note last instance of set bit
+          sub      LSB,ecx             ;Store least-sig bit in LSB
+          mov      ebx,ecx             ;Track last instance of set bit
+          dec      ecx                 ;Dec iterator (no dec from loop)
           jmp      msbCt               ;Jump when LSB is found
          .endIf
          shr       eax,1               ;Shift to test next bit
          loop      lsbCt               ;Loop until all bits are tested
 
-msbCt:   shr       eax,1
+msbCt:   shr       eax,1               ;Shift to test next bit
          test      eax,bitmask         ;Tests status of right-most bit
-         call dumpregs
-         .if       !zero?              ;Note if right-most bit is set
+         .if       !zero?              ;If right-most bit is set...
           inc      edx                 ;Increase total bits ctr
-          mov      ebx,ecx             ;Note last instance of set bit
+          mov      ebx,ecx             ;Track last instance of set bit
          .endIf       
          loop      msbCt               ;Loop until all bits are tested
-         dec       ebx
-         sub       MSB,ebx
-         mov       bitTtl, edx
+
+         sub       MSB,ebx             ;Store most-sig bit in MSB
+         mov       ebx,edx             ;Move total bit couont to ebx
 
          comment ;
 Prints results to console in the order of least significant bit
@@ -75,13 +74,13 @@ passed to eax for output.
 
          mov       edx,offset ttlMsg
          call      WriteString
-         mov       eax,bitTtl
+         mov       eax,ebx
          call      WriteInt
          mov       edx,offset blank
          call      WriteString
          invoke    exitprocess,0       ;Terminate gracefully
 
-zroBit:  mov       edx,offset zeroMsg
+zroBit:  mov       edx,offset zeroMsg  
          call      WriteString
          invoke    exitprocess,0       ;Terminate gracefully
 
